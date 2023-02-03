@@ -1,5 +1,9 @@
 import java.io.*;
 import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveTask;
 
 public class Main {
     //How it works:
@@ -23,7 +27,7 @@ public class Main {
         // possible bits 8 bit * 4 = 32 bit => there are 2^32 possible combinations => we need 2^32 bits to store it
         // int can store 32 bit = 2^4 => we need 2^32/2^4 = 2^28 ints = 268435456
         private final int[] bitmask = new int[268435456];
-        private long counter = 0;
+        private long unique = 0;
 
         private long defineBlock(long pos){
             return pos / 32;
@@ -42,13 +46,13 @@ public class Main {
             long posInBlock = definePosInBlock(pos);
 
             if (!getBit(block,posInBlock)){
-                bitmask[block] |= 1L << posInBlock;
-                counter++;
+                bitmask[block] |= 1L << posInBlock; //set bit
+                unique++;
             }
         }
 
-        private long getCounter(){
-            return counter;
+        private long getUnique(){
+            return unique;
         }
 
     }
@@ -90,6 +94,6 @@ public class Main {
             System.out.println(ex);
         }
 
-        System.out.println("Result: " + bitmask.getCounter());
+        System.out.println("Result: " + bitmask.getUnique());
     }
 }

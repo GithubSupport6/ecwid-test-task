@@ -127,7 +127,7 @@ class CopyUtils {
             Collection<?> collection = (Collection<?>) field.get(currentObject);
             Collection<Object> newCollection = (Collection<Object>) field.get(currentObject).getClass().getConstructor().newInstance();
             for (Object el:collection){
-                Object obj = copyObjectOrCopyReference(field.get(currentObject));
+                Object obj = copyObjectOrCopyReference(el);
                 newCollection.add(obj);
             }
             field.set(newObject,newCollection);

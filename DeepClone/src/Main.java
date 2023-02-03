@@ -1,23 +1,25 @@
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+
+class SampleSubclass {
+
+    public SampleSubclass(){
+
+    }
+
+    String value1 = "value1";
+    String value2 = "value2";
+}
+
 
 class SampleClass {
 
     public SampleClass(){
         simpleList.add("oneList");
         simpleList.add("twoList");
-    }
-
-    class SampleSubclass {
-
-        public SampleSubclass(){
-
-        }
-
-        String value1 = "value1";
-        String value2 = "value2";
     }
 
     String simpleValue = "simpleValue";
@@ -73,6 +75,8 @@ class CopyUtils {
     final static String STRING_TYPE = "class java.lang.String";
     final static String COLLECTION_TYPE = "java.lang.Collection";
 
+    static HashSet<Object> linkCounter = new HashSet<>();
+
     private static void getInterface(List<String> interfaces, Class<?> clazz){
         Class<?>[] classInterfaces = clazz.getInterfaces();
         if (classInterfaces.length == 0){
@@ -98,6 +102,13 @@ class CopyUtils {
         else return FieldType.CLASS;
     }
 
+    private static Object copyObjectOrCopyReference(Object fieldObject) throws Exception {
+        if (!linkCounter.contains(fieldObject)) {
+            return deepCopy(fieldObject);
+        }
+        return fieldObject;
+    }
+
     private static <T> void setFieldInner(T currentObject, T newObject, Field field) throws Exception {
         FieldType fieldType = defineType(field,currentObject);
         if (fieldType == FieldType.SIMPLE_TYPE){
@@ -116,19 +127,22 @@ class CopyUtils {
             Collection<?> collection = (Collection<?>) field.get(currentObject);
             Collection<Object> newCollection = (Collection<Object>) field.get(currentObject).getClass().getConstructor().newInstance();
             for (Object el:collection){
-                Object obj = deepCopy(el);
+                Object obj = copyObjectOrCopyReference(field.get(currentObject));
                 newCollection.add(obj);
             }
             field.set(newObject,newCollection);
         }
         else if (fieldType == FieldType.CLASS){
-            Object obj = deepCopy(field.get(currentObject));
+            Object obj = copyObjectOrCopyReference(field.get(currentObject));
             field.set(newObject,obj);
         }
 
     }
 
     public static <T> T deepCopy(T obj) throws Exception {
+
+        linkCounter.add(obj);
+
         if (obj.getClass().isPrimitive()){
             return obj;
         }
@@ -136,6 +150,7 @@ class CopyUtils {
             String newString = new String(obj.toString());
             return (T)newString;
         }
+        //doesn't work for inner classes
         T newObject = (T) obj.getClass().getConstructor().newInstance();
         Field[] fields = obj.getClass().getDeclaredFields();
         for (Field field: fields) {

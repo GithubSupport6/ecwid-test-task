@@ -120,7 +120,10 @@ class CopyUtils {
 
             int length = Array.getLength(array);
             Object[] newArray = (Object[])Array.newInstance(field.getType().componentType(),length);
-            System.arraycopy(array, 0, newArray, 0, newArray.length);
+            for (int i = 0;i<array.length;i++){
+                Object obj = copyObjectOrCopyReference(array[i]);
+                newArray[i] = obj;
+            }
             field.set(newObject,newArray);
         }
         else if (fieldType == FieldType.COLLECTION) {

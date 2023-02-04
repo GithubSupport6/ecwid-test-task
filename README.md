@@ -1,4 +1,4 @@
 # ecwid-test-task
 Тестовое задание в ECWID
 Ip-counter - выполненное, рабочее
-Deep-clone - пока не работает)
+Deep-clone - тоже работает

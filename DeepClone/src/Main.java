@@ -12,8 +12,12 @@ class SampleSubclass {
 
     String value1 = "value1";
     String value2 = "value2";
-}
 
+    @Override
+    public String toString() {
+        return "{" + value1 + "," + value2 + "}";
+    }
+}
 
 class SampleClass {
 
@@ -49,17 +53,20 @@ class SampleClass {
         return res.toString();
     }
 
+
+
     @Override
     public String toString() {
         String array = getData(simpleArray);
         String list = getData(simpleList);
-        return  "{ " + simpleValue + ":"
-                + simpleInnerClass.value1 + ":"
-                + simpleInnerClass.value2 + ":"
-                + selfReference.simpleValue + ":"
-                + array + ":"
-                + list + ":"
-                + subclassList.isEmpty() + " }";
+        String sublist = getData(subclassList);
+        return  "{\n       " + simpleValue + ",\n"
+                + "       " + simpleInnerClass.value1 + ",\n"
+                + "       " + simpleInnerClass.value2 + ",\n"
+                + "       " + selfReference.simpleValue + ",\n"
+                + "       " + array + ",\n"
+                + "       " + list + ",\n"
+                + "       " + sublist + "\n }";
     }
 }
 
@@ -72,21 +79,7 @@ class CopyUtils {
         CLASS
     }
 
-    final static String STRING_TYPE = "class java.lang.String";
-    final static String COLLECTION_TYPE = "java.lang.Collection";
-
     static HashSet<Object> linkCounter = new HashSet<>();
-
-    private static void getInterface(List<String> interfaces, Class<?> clazz){
-        Class<?>[] classInterfaces = clazz.getInterfaces();
-        if (classInterfaces.length == 0){
-            interfaces.add(clazz.getName());
-            return;
-        }
-        for (Class<?> iface : classInterfaces) {
-            getInterface(interfaces,iface);
-        }
-    }
 
     private static FieldType defineType(Field field, Object obj) throws IllegalAccessException {
         if (field.getType().isPrimitive() || field.get(obj) instanceof String){
@@ -167,9 +160,25 @@ public class Main {
 
     public static void main(String[] args) {
         SampleClass obj1 = new SampleClass();
-        obj1.simpleValue = "hello";
-        SampleClass obj2 = null;
-        obj1.simpleInnerClass.value1 = "simpleInnerClassValue1";
+        obj1.simpleValue = "object1";
+        obj1.simpleInnerClass.value1 = "innerValue1";
+        obj1.simpleInnerClass.value2 = "innerValue2";
+        obj1.simpleList = new LinkedList<String>();
+        obj1.simpleList.add("list1");
+        obj1.simpleList.add("list1");
+        obj1.simpleArray = new String[2];
+        obj1.simpleArray[0] = "array1";
+        obj1.simpleArray[1] = "array1";
+        SampleSubclass ss1 = new SampleSubclass();
+        ss1.value1 = "list_ss_1";
+        ss1.value2 = "list_ss_1";
+        SampleSubclass ss2 = new SampleSubclass();
+        ss2.value1 = "list_ss_12";
+        ss2.value2 = "list_ss_12";
+        obj1.subclassList = new LinkedList<>();
+        obj1.subclassList.add(ss1);
+        obj1.subclassList.add(ss2);
+        SampleClass obj2 = new SampleClass();
         try {
             obj2 = CopyUtils.deepCopy(obj1);
         }
@@ -183,7 +192,7 @@ public class Main {
         obj2.simpleArray[1] = "three";
         obj2.simpleList.set(0,"hello");
         obj2.simpleInnerClass.value1 = "classValue";
-
+        obj2.subclassList.get(0).value1 = "list_ss_2";
         System.out.println("Obj1: " + obj1);
         System.out.println("Obj2: " + obj2);
     }
